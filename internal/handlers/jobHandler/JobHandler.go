@@ -21,31 +21,47 @@ func CreateJob(ctx *fiber.Ctx) error {
 	}
 
 	//insert company
-	err = database.DB.FirstOrCreate(&job.Company, model.Company{Name: job.Company.Name, CareerCiteLink: job.Company.CareerCiteLink, Excitement: job.Company.Excitement}).Error
+	if job.Company.Name != "" {
+		err = database.DB.FirstOrCreate(&job.Company, model.Company{Name: job.Company.Name}).Error
 
-	if err != nil {
+		if err != nil {
+			return ctx.Status(500).JSON(fiber.Map{
+				"status":  "error",
+				"message": fmt.Sprintf("Could not create Company. Error: %v", err.Error()),
+				"data":    nil,
+			})
+		}
+		job.CompanyID = job.Company.ID
+	} else {
 		return ctx.Status(500).JSON(fiber.Map{
 			"status":  "error",
-			"message": fmt.Sprintf("Could not create Company. Error: %v", err.Error()),
+			"message": "Company is required.",
 			"data":    nil,
 		})
 	}
 
 	//insert job category
-	err = database.DB.FirstOrCreate(&job.JobCategory, model.JobCategory{Name: job.JobCategory.Name}).Error
+	if job.JobCategory.Name != "" {
+		err = database.DB.FirstOrCreate(&job.JobCategory, model.JobCategory{Name: job.JobCategory.Name}).Error
 
-	if err != nil {
+		if err != nil {
+			return ctx.Status(500).JSON(fiber.Map{
+				"status":  "error",
+				"message": fmt.Sprintf("Could not create Job Category. Error: %v", err.Error()),
+				"data":    nil,
+			})
+		}
+		job.JobCategoryID = job.JobCategory.ID
+	} else {
 		return ctx.Status(500).JSON(fiber.Map{
 			"status":  "error",
-			"message": fmt.Sprintf("Could not create Company. Error: %v", err.Error()),
+			"message": "Job Category is required.",
 			"data":    nil,
 		})
 	}
 
 	//create job
 	job.ID = uuid.New()
-	job.CompanyID = job.Company.ID
-	job.JobCategoryID = job.JobCategory.ID
 
 	if job.JobDescription.Description != "" {
 		err = database.DB.Create(&job).Error
@@ -81,7 +97,7 @@ func GetJobs(ctx *fiber.Ctx) error {
 func GetJobByID(ctx *fiber.Ctx) error {
 	var job model.Job
 	id := ctx.Params("id")
-	err := database.DB.Preload("Company").Preload("JobCategory").Preload("JobDescription").First(&job, "id = ?", id).Error
+	err := database.DB.Preload("Company").Preload("JobCategory").Preload("JobDescription").Preload("Resume").First(&job, "id = ?", id).Error
 
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{

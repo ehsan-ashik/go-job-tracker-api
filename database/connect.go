@@ -46,5 +46,5 @@ func ConnectDB() {
 }
 
 func migrate() error {
-	return DB.AutoMigrate(&model.Company{}, &model.JobDescription{}, &model.JobCategory{}, &model.Job{})
+	return DB.AutoMigrate(&model.Company{}, &model.JobDescription{}, &model.JobCategory{}, &model.Job{}, &model.Resume{})
 }

@@ -24,4 +24,6 @@ type Job struct {
 	JobCategoryID  uint           `json:"job_category_id" gorm:"type:int; not null"`
 	JobCategory    JobCategory    `json:"job_category"`
 	JobDescription JobDescription `json:"job_description"`
+	ResumeID       *uint          `json:"resume_id" gorm:"type:int; null"`
+	Resume         Resume         `json:"resume"`
 }
