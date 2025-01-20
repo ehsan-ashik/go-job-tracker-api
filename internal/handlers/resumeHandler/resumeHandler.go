@@ -7,6 +7,7 @@ import (
 
 	"github.com/ehsan-ashik/go-job-tracker-api/database"
 	"github.com/ehsan-ashik/go-job-tracker-api/internal/filestorageservice"
+	"github.com/ehsan-ashik/go-job-tracker-api/internal/handlers/common"
 	"github.com/ehsan-ashik/go-job-tracker-api/internal/model"
 	"github.com/gofiber/fiber/v2"
 )
@@ -94,7 +95,7 @@ func CreateResume(ctx *fiber.Ctx) error {
 
 func GetResumes(ctx *fiber.Ctx) error {
 	var resumes []model.Resume
-	database.DB.Find(&resumes)
+	database.DB.Scopes(common.Paginate(ctx), common.Sort(ctx), common.Filter(ctx)).Find(&resumes)
 
 	return ctx.Status(200).JSON(fiber.Map{
 		"status":  "success",

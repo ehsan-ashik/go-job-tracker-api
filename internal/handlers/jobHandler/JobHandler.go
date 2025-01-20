@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ehsan-ashik/go-job-tracker-api/database"
+	"github.com/ehsan-ashik/go-job-tracker-api/internal/handlers/common"
 	"github.com/ehsan-ashik/go-job-tracker-api/internal/model"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -85,7 +86,7 @@ func CreateJob(ctx *fiber.Ctx) error {
 
 func GetJobs(ctx *fiber.Ctx) error {
 	var jobs []model.Job
-	database.DB.Preload("Company").Preload("JobCategory").Find(&jobs)
+	database.DB.Scopes(common.Paginate(ctx), common.Sort(ctx), common.Filter(ctx)).Preload("Company").Preload("JobCategory").Find(&jobs)
 
 	return ctx.Status(200).JSON(fiber.Map{
 		"status":  "success",

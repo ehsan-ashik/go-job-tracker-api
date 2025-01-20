@@ -4,11 +4,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type Job struct {
-	gorm.Model
+	GormModel
 	ID             uuid.UUID      `json:"id" gorm:"type:uuid"`
 	Position       string         `json:"position" gorm:"type:varchar(255); not null"`
 	CompanyID      uint           `json:"company_id" gorm:"type:int; not null"`
