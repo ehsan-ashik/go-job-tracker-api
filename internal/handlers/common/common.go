@@ -30,10 +30,18 @@ func Paginate(ctx *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
 
 func Sort(ctx *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		sort_str := ctx.Query("sort", `["id", "DESC"]`)
+		sort_str := ctx.Query("sort", "")
+		if sort_str == "" {
+			return db
+		}
 
 		var arr_str []string
-		_ = json.Unmarshal([]byte(sort_str), &arr_str)
+		err := json.Unmarshal([]byte(sort_str), &arr_str)
+
+		if err != nil || len(arr_str) != 2 {
+			ctx.Response().Header.Add("X-Invalid-Sort", "True")
+			return db
+		}
 
 		return db.Order(fmt.Sprintf("%v %v", arr_str[0], arr_str[1]))
 	}
@@ -62,7 +70,7 @@ func Filter(ctx *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
 
 		err := json.Unmarshal([]byte(filter_str), &data)
 		if err != nil {
-			panic(err)
+			ctx.Response().Header.Add("X-Invalid-Filter", "True")
 		}
 
 		for key, val := range data {

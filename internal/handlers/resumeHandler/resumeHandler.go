@@ -3,6 +3,7 @@ package resumeHandler
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/ehsan-ashik/go-job-tracker-api/database"
@@ -95,7 +96,20 @@ func CreateResume(ctx *fiber.Ctx) error {
 
 func GetResumes(ctx *fiber.Ctx) error {
 	var resumes []model.Resume
-	database.DB.Scopes(common.Paginate(ctx), common.Sort(ctx), common.Filter(ctx)).Find(&resumes)
+	err := database.DB.Scopes(common.Paginate(ctx), common.Sort(ctx), common.Filter(ctx)).Find(&resumes).Error
+
+	if err != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"status":  "error",
+			"message": fmt.Sprintf("Could not fetch resumes. Error: %v", err.Error()),
+			"data":    nil,
+		})
+	}
+
+	//get row count
+	var rowCount int64
+	database.DB.Model(model.Resume{}).Scopes(common.Filter(ctx)).Count(&rowCount)
+	ctx.Response().Header.Add("X-Total-Rows", strconv.FormatInt(rowCount, 10))
 
 	return ctx.Status(200).JSON(fiber.Map{
 		"status":  "success",

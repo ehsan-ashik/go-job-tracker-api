@@ -2,6 +2,7 @@ package jobHandler
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ehsan-ashik/go-job-tracker-api/database"
 	"github.com/ehsan-ashik/go-job-tracker-api/internal/handlers/common"
@@ -86,7 +87,20 @@ func CreateJob(ctx *fiber.Ctx) error {
 
 func GetJobs(ctx *fiber.Ctx) error {
 	var jobs []model.Job
-	database.DB.Scopes(common.Paginate(ctx), common.Sort(ctx), common.Filter(ctx)).Preload("Company").Preload("JobCategory").Find(&jobs)
+	err := database.DB.Scopes(common.Paginate(ctx), common.Sort(ctx), common.Filter(ctx)).Preload("Company").Preload("JobCategory").Find(&jobs).Error
+
+	if err != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"status":  "error",
+			"message": fmt.Sprintf("Could not fetch jobs. Error: %v", err.Error()),
+			"data":    nil,
+		})
+	}
+
+	//get row count
+	var rowCount int64
+	database.DB.Model(model.Job{}).Scopes(common.Filter(ctx)).Count(&rowCount)
+	ctx.Response().Header.Add("X-Total-Rows", strconv.FormatInt(rowCount, 10))
 
 	return ctx.Status(200).JSON(fiber.Map{
 		"status":  "success",
