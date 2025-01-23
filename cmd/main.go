@@ -13,7 +13,9 @@ import (
 func main() {
 	app := fiber.New()
 
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		ExposeHeaders: "X-Total-Rows, X-Invalid-Sort, X-Invalid-Filter",
+	}))
 
 	filestorageservice.ServiceClientSharedKey(os.Getenv("AZURE_ACCOUNT_NAME"), os.Getenv("AZURE_ACCESS_KEY"))
 	database.ConnectDB()
