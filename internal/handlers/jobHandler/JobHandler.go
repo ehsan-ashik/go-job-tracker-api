@@ -23,43 +23,47 @@ func CreateJob(ctx *fiber.Ctx) error {
 	}
 
 	//insert company
-	if job.Company.Name != "" {
-		err = database.DB.FirstOrCreate(&job.Company, model.Company{Name: job.Company.Name}).Error
+	if job.CompanyID == 0 {
+		if job.Company.Name != "" {
+			err = database.DB.FirstOrCreate(&job.Company, model.Company{Name: job.Company.Name}).Error
 
-		if err != nil {
+			if err != nil {
+				return ctx.Status(500).JSON(fiber.Map{
+					"status":  "error",
+					"message": fmt.Sprintf("Could not create Company. Error: %v", err.Error()),
+					"data":    nil,
+				})
+			}
+			job.CompanyID = job.Company.ID
+		} else {
 			return ctx.Status(500).JSON(fiber.Map{
 				"status":  "error",
-				"message": fmt.Sprintf("Could not create Company. Error: %v", err.Error()),
+				"message": "Company is required.",
 				"data":    nil,
 			})
 		}
-		job.CompanyID = job.Company.ID
-	} else {
-		return ctx.Status(500).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Company is required.",
-			"data":    nil,
-		})
 	}
 
 	//insert job category
-	if job.JobCategory.Name != "" {
-		err = database.DB.FirstOrCreate(&job.JobCategory, model.JobCategory{Name: job.JobCategory.Name}).Error
+	if job.JobCategoryID == 0 {
+		if job.JobCategory.Name != "" {
+			err = database.DB.FirstOrCreate(&job.JobCategory, model.JobCategory{Name: job.JobCategory.Name}).Error
 
-		if err != nil {
+			if err != nil {
+				return ctx.Status(500).JSON(fiber.Map{
+					"status":  "error",
+					"message": fmt.Sprintf("Could not create Job Category. Error: %v", err.Error()),
+					"data":    nil,
+				})
+			}
+			job.JobCategoryID = job.JobCategory.ID
+		} else {
 			return ctx.Status(500).JSON(fiber.Map{
 				"status":  "error",
-				"message": fmt.Sprintf("Could not create Job Category. Error: %v", err.Error()),
+				"message": "Job Category is required.",
 				"data":    nil,
 			})
 		}
-		job.JobCategoryID = job.JobCategory.ID
-	} else {
-		return ctx.Status(500).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Job Category is required.",
-			"data":    nil,
-		})
 	}
 
 	//create job
@@ -162,7 +166,7 @@ func UpdateJob(ctx *fiber.Ctx) error {
 	if updatedJob.IsReferred != job.IsReferred {
 		job.IsReferred = updatedJob.IsReferred
 	}
-	if updatedJob.ReferredBy != nil && *updatedJob.ReferredBy != "" {
+	if updatedJob.ReferredBy != job.ReferredBy {
 		job.ReferredBy = updatedJob.ReferredBy
 	}
 	if updatedJob.Location != nil && *updatedJob.Location != "" {
@@ -174,8 +178,20 @@ func UpdateJob(ctx *fiber.Ctx) error {
 	if updatedJob.ResonseDate != nil {
 		job.ResonseDate = updatedJob.ResonseDate
 	}
-	if updatedJob.Remark != nil && *updatedJob.Remark != "" {
+	if updatedJob.Remark != job.Remark {
 		job.Remark = updatedJob.Remark
+	}
+	if updatedJob.CompanyID != job.CompanyID {
+		job.CompanyID = updatedJob.CompanyID
+	}
+	if updatedJob.JobCategoryID != job.JobCategoryID {
+		job.JobCategoryID = updatedJob.JobCategoryID
+	}
+	if updatedJob.ResumeID != job.ResumeID {
+		job.ResumeID = updatedJob.ResumeID
+	}
+	if updatedJob.JobDescription != job.JobDescription {
+		job.JobDescription = updatedJob.JobDescription
 	}
 
 	err = database.DB.Save(&job).Error
