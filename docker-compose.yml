@@ -21,7 +21,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./db_backups/last/job-tracker-latest.sql.gz:/docker-entrypoint-initdb.d/job-tracker-latest.sql.gz
+      - pgdata:/var/lib/postgresql/data
   pgbackup:
     container_name: pgbackup
     image: prodrigestivill/postgres-backup-local
@@ -44,3 +44,5 @@ services:
       - BACKUP_KEEP_MONTHS=6
       - HEALTHCHECK_PORT=81
   
+volumes:
+  pgdata:
