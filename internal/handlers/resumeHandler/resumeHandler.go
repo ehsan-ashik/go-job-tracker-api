@@ -151,22 +151,66 @@ func UpdateResume(ctx *fiber.Ctx) error {
 		})
 	}
 
-	var updatedResume model.Resume
-	err = ctx.BodyParser(&updatedResume)
+	updated_title := ctx.FormValue("title")
+	updated_title = strings.TrimSpace(updated_title)
+	if updated_title == "" {
+		updated_title = resume.Title
+	}
+	updated_remark := ctx.FormValue("remark")
+	var updated_url = resume.URL
 
-	if err != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"status":  "error",
-			"message": fmt.Sprintf("Invalid Body. Error: %v", err.Error()),
-			"data":    nil,
-		})
+	// upload file to blob storage
+	file, err := ctx.FormFile("file")
+	if err == nil {
+		buffer, err := file.Open()
+		if err != nil {
+			return ctx.Status(400).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Could not open file",
+				"data":    nil,
+			})
+		}
+		defer buffer.Close()
+
+		content, _ := io.ReadAll(buffer)
+
+		fileNameParts := strings.Split(file.Filename, ".")
+		extention := fileNameParts[len(fileNameParts)-1]
+
+		url_splits := strings.Split(resume.URL, "/")
+		old_title := url_splits[len(url_splits)-1]
+
+		if filestorageservice.CheckIfBlobExists(old_title) {
+			err = filestorageservice.DeleteBlobFile(old_title)
+			if err != nil {
+				return ctx.Status(500).JSON(fiber.Map{
+					"status":  "error",
+					"message": "Could not delete old file. Error: " + err.Error(),
+					"data":    nil,
+				})
+			}
+		}
+
+		new_title := fmt.Sprintf("%v.%v", strings.ReplaceAll(strings.ToLower(updated_title), " ", "_"), extention)
+		updated_url, err = filestorageservice.UploadBlobFile(new_title, content)
+
+		if err != nil {
+			return ctx.Status(500).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Could not upload new file. Error: " + err.Error(),
+				"data":    nil,
+			})
+		}
 	}
 
-	if updatedResume.Title != "" {
-		resume.Title = updatedResume.Title
+	if updated_title != resume.Title {
+		resume.Title = updated_title
 	}
-	if updatedResume.Remark != nil && *updatedResume.Remark != "" {
-		resume.Remark = updatedResume.Remark
+	if updated_remark != *resume.Remark {
+		*resume.Remark = updated_remark
+	}
+	if updated_url != resume.URL {
+		resume.URL = updated_url
 	}
 
 	err = database.DB.Save(&resume).Error
@@ -210,14 +254,16 @@ func DeleteResume(ctx *fiber.Ctx) error {
 		})
 	}
 
-	err = filestorageservice.DeleteBlobFile(fileName)
+	if filestorageservice.CheckIfBlobExists(fileName) {
+		err := filestorageservice.DeleteBlobFile(fileName)
 
-	if err != nil {
-		return ctx.Status(500).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Could not delete file. Error: " + err.Error(),
-			"data":    nil,
-		})
+		if err != nil {
+			return ctx.Status(500).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Could not delete file. Error: " + err.Error(),
+				"data":    nil,
+			})
+		}
 	}
 
 	err = database.DB.Delete(&resume).Error
