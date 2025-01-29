@@ -2,6 +2,8 @@
 
 A robust REST API service built with Go to manage job applications, resumes, and related resources. This backend system provides a comprehensive solution for tracking job applications with support for resume storage in Azure Blob Storage.
 
+Frontend for the application is available in the following repo: https://github.com/ehsan-ashik/react-admin-job-tracker-frontend
+
 ## Features
 
 ### Core Functionality
