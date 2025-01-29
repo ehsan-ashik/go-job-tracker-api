@@ -98,39 +98,39 @@ This will start:
 ### Available Endpoints
 
 #### Jobs
-- `GET /api/jobs` - List all jobs (supports pagination, sorting, filtering)
-- `POST /api/jobs` - Create a new job
-- `GET /api/jobs/:id` - Get job details
-- `PUT /api/jobs/:id` - Update job
-- `DELETE /api/jobs/:id` - Delete job
+- `GET /api/job` - List all jobs (supports pagination, sorting, filtering)
+- `POST /api/job` - Create a new job
+- `GET /api/job/:id` - Get job details
+- `PUT /api/job/:id` - Update job
+- `DELETE /api/job/:id` - Delete job
 
 #### Companies
-- `GET /api/companies` - List all companies (supports pagination, sorting, filtering)
-- `POST /api/companies` - Create a new company
-- `GET /api/companies/:id` - Get company details
-- `PUT /api/companies/:id` - Update company
-- `DELETE /api/companies/:id` - Delete company
+- `GET /api/company` - List all companies (supports pagination, sorting, filtering)
+- `POST /api/company` - Create a new company
+- `GET /api/company/:id` - Get company details
+- `PUT /api/company/:id` - Update company
+- `DELETE /api/company/:id` - Delete company
 
 #### Resumes
-- `GET /api/resumes` - List all resumes (supports pagination, sorting, filtering)
-- `POST /api/resumes` - Create a new resume (multipart form)
-- `GET /api/resumes/:id` - Get resume details
-- `PUT /api/resumes/:id` - Update resume (multipart form)
-- `DELETE /api/resumes/:id` - Delete resume
+- `GET /api/resume` - List all resumes (supports pagination, sorting, filtering)
+- `POST /api/resume` - Create a new resume (multipart form)
+- `GET /api/resume/:id` - Get resume details
+- `PUT /api/resume/:id` - Update resume (multipart form)
+- `DELETE /api/resume/:id` - Delete resume
 
 #### Job Categories
-- `GET /api/categories` - List all categories (multipart form)
-- `POST /api/categories` - Create a new category
-- `GET /api/categories/:id` - Get category details
-- `PUT /api/categories/:id` - Update category
-- `DELETE /api/categories/:id` - Delete category
+- `GET /api/job_category` - List all categories (multipart form)
+- `POST /api/job_category` - Create a new category
+- `GET /api/job_category/:id` - Get category details
+- `PUT /api/job_category/:id` - Update category
+- `DELETE /api/job_category/:id` - Delete category
 
 #### Job Descriptions
-- `GET /api/categories` - List all descriptions (multipart form)
-- `POST /api/categories` - Create a new job description
-- `GET /api/categories/:id` - Get job description details
-- `PUT /api/categories/:id` - Update job description
-- `DELETE /api/categories/:id` - Delete job description
+- `GET /api/job_description` - List all descriptions (multipart form)
+- `POST /api/job_description` - Create a new job description
+- `GET /api/job_description/:id` - Get job description details
+- `PUT /api/job_description/:id` - Update job description
+- `DELETE /api/job_description/:id` - Delete job description
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
